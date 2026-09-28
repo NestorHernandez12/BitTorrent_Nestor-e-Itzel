@@ -1,0 +1,284 @@
+GUÍA DE USO DEL PROYECTO - RED DISTRIBUIDA TIPO BITTORRENT
+
+1.  DESCRIPCIÓN GENERAL
+
+El proyecto simula una red distribuida inspirada en BitTorrent. Está
+formado por: - tracker.py: coordina los nodos de la red. - nodo.py:
+representa cada equipo que comparte o descarga archivos.
+
+El tracker registra nodos, puertos, archivos disponibles y progreso. Los
+archivos no pasan por el tracker: la transferencia se realiza
+directamente entre nodos mediante TCP.
+
+El nodo permite ver nodos conectados, compartir y descargar archivos,
+consultar progreso, realizar varias transferencias mediante hilos,
+reanudar descargas y verificar integridad mediante SHA-256.
+
+2.  REQUISITOS
+
+-   Dos computadoras conectadas a la misma red.
+-   Python 3 instalado en ambas.
+-   Librería Rich instalada.
+-   tracker.py en la computadora que funcionará como tracker.
+-   nodo.py en ambas computadoras.
+
+Instalar Rich: py -m pip install rich
+
+3.  ESTRUCTURA DE CARPETAS
+
+Computadora principal:
+
+ProyectoFinalSD/ tracker.py Nodo1/ nodo.py archivos/ descargas/
+
+Segunda computadora:
+
+ProyectoFinalSD/ Nodo2/ nodo.py archivos/ descargas/
+
+La carpeta “archivos” contiene lo que el nodo comparte. La carpeta
+“descargas” contiene los archivos recibidos.
+
+4.  OBTENER LA IP DEL TRACKER
+
+En la computadora donde se ejecutará tracker.py:
+
+ipconfig
+
+Buscar la Dirección IPv4 del adaptador Wi-Fi.
+
+Ejemplo: Dirección IPv4: 192.168.1.20
+
+Esa dirección será la IP del tracker y deberá utilizarse en los dos
+nodos.
+
+No utilizar 127.0.0.1 cuando los nodos estén en computadoras diferentes.
+
+5.  INICIAR EL TRACKER
+
+En la computadora principal:
+
+py tracker.py
+
+El tracker utiliza el puerto 6000. Esta terminal debe permanecer
+abierta.
+
+6.  INICIAR NODO 1
+
+En otra terminal de la computadora principal, entrar a Nodo1 y ejecutar:
+
+py nodo.py
+
+Ejemplo: IP del Tracker: 192.168.1.20 Puerto de este nodo: 50001
+
+7.  INICIAR NODO 2
+
+En la segunda computadora:
+
+py nodo.py
+
+Debe utilizar la misma IP del tracker:
+
+IP del Tracker: 192.168.1.20 Puerto de este nodo: 50002
+
+La IP del tracker es igual en ambos nodos. Los puertos de los nodos
+deben ser diferentes.
+
+8.  MENÚ DEL NODO
+
+9.  Ver nodos conectados
+
+10. Transferir archivo
+
+11. Ver progreso
+
+12. Ver archivos disponibles
+
+13. Compartir archivo
+
+14. Salir
+
+15. VER NODOS CONECTADOS
+
+Seleccionar la opción 1.
+
+El programa consulta al tracker y muestra los nodos registrados,
+incluyendo dirección IP, puerto, rol y archivos compartidos.
+
+En una prueba con dos computadoras debe aparecer: Total de nodos: 2
+
+10. COMPARTIR UN ARCHIVO
+
+Copiar primero el archivo dentro de la carpeta “archivos”.
+
+Ejemplo: Nodo1/archivos/video.mp4
+
+Seleccionar: 5. Compartir archivo
+
+El programa obtiene el tamaño, calcula la cantidad de fragmentos,
+calcula SHA-256 y anuncia el archivo al tracker.
+
+Cada fragmento tiene un tamaño de 512 KB.
+
+11. VER ARCHIVOS DISPONIBLES
+
+Desde el otro nodo seleccionar: 4. Ver archivos disponibles
+
+El nodo consulta al tracker y muestra los archivos anunciados por la
+red.
+
+12. TRANSFERIR UN ARCHIVO
+
+Seleccionar: 2. Transferir archivo
+
+Elegir el archivo deseado. El nodo consulta al tracker para encontrar
+las fuentes disponibles y posteriormente solicita los fragmentos
+directamente al nodo fuente mediante TCP.
+
+El tracker coordina la búsqueda, pero no transporta el archivo.
+
+13. VER PROGRESO
+
+Seleccionar: 3. Ver progreso
+
+Se muestra el nombre del archivo, porcentaje, barra de progreso y
+estado.
+
+En la versión con progreso en vivo, la tabla se actualiza
+automáticamente. Presionar ENTER para regresar al menú.
+
+14. TRANSFERENCIAS SIMULTÁNEAS
+
+Para demostrar concurrencia: 1. Compartir varios archivos desde Nodo 1.
+2. Desde Nodo 2 iniciar la descarga del primer archivo con la opción 2.
+3. Volver al menú e iniciar el segundo archivo. 4. Repetir para más
+archivos. 5. Seleccionar la opción 3 para observar los progresos.
+
+Las descargas se ejecutan mediante hilos independientes.
+
+15. REANUDAR UNA DESCARGA
+
+16. Iniciar la descarga de un archivo grande.
+
+17. Esperar a que alcance un porcentaje intermedio.
+
+18. Interrumpir Nodo 2.
+
+19. No borrar el archivo parcial de “descargas”.
+
+20. Ejecutar nuevamente nodo.py.
+
+21. Usar el mismo puerto del nodo.
+
+22. Seleccionar otra vez el mismo archivo.
+
+El programa detecta el tamaño ya descargado y continúa desde el
+fragmento correspondiente.
+
+Debe aparecer un mensaje similar a: Reanudando archivo desde XX%
+
+16. VERIFICACIÓN SHA-256
+
+Cuando un nodo comparte un archivo se calcula su SHA-256.
+
+Al terminar una descarga, el receptor calcula nuevamente el SHA-256 y lo
+compara con el valor del archivo original.
+
+Si coinciden aparece: INTEGRIDAD VERIFICADA
+
+Esto comprueba que el archivo recibido coincide con el original.
+
+17. FLUJO GENERAL
+
+18. Ejecutar tracker.py.
+
+19. Iniciar Nodo 1.
+
+20. Iniciar Nodo 2.
+
+21. Los nodos se registran en el tracker.
+
+22. Nodo 1 comparte un archivo.
+
+23. El tracker registra la disponibilidad.
+
+24. Nodo 2 consulta archivos.
+
+25. Nodo 2 solicita transferir el archivo.
+
+26. El tracker proporciona las fuentes.
+
+27. Nodo 2 solicita fragmentos directamente a Nodo 1.
+
+28. Nodo 1 envía los fragmentos por TCP.
+
+29. Se actualiza el progreso.
+
+30. Al finalizar se comprueba SHA-256.
+
+31. ARQUITECTURA RESUMIDA
+
+                 TRACKER
+                tracker.py
+                Puerto 6000
+                     |
+             +-------+-------+
+             |               |
+          NODO 1          NODO 2
+          nodo.py          nodo.py
+          :50001           :50002
+             |               |
+             +---------------+
+              Transferencia
+                P2P / TCP
+
+32. PRUEBA DE CONECTIVIDAD
+
+Desde la segunda computadora:
+
+Test-NetConnection IP_DEL_TRACKER -Port 6000
+
+Ejemplo: Test-NetConnection 192.168.1.20 -Port 6000
+
+Se espera: TcpTestSucceeded : True
+
+20. ORDEN PARA LA DEMOSTRACIÓN
+
+21. Conectar ambas computadoras a la misma red.
+
+22. Obtener la IPv4 del equipo del tracker.
+
+23. Ejecutar tracker.py.
+
+24. Ejecutar Nodo 1 con puerto 50001.
+
+25. Ejecutar Nodo 2 con puerto 50002.
+
+26. Mostrar los dos nodos conectados.
+
+27. Compartir un archivo.
+
+28. Mostrarlo desde el segundo nodo.
+
+29. Descargarlo.
+
+30. Mostrar el progreso.
+
+31. Mostrar transferencias simultáneas.
+
+32. Interrumpir una descarga.
+
+33. Reiniciar el nodo y reanudar.
+
+34. Terminar la descarga.
+
+35. Mostrar INTEGRIDAD VERIFICADA.
+
+36. NOTAS IMPORTANTES
+
+-   tracker.py debe permanecer ejecutándose.
+-   La IP del tracker es la misma para todos los nodos.
+-   Cada nodo utiliza un puerto diferente.
+-   Los archivos a compartir van en “archivos”.
+-   Los archivos recibidos quedan en “descargas”.
+-   No borrar el archivo parcial si se demostrará la reanudación.
+-   Si cambia la red Wi-Fi, consultar nuevamente la IPv4 del tracker.
+-   Para equipos diferentes no usar 127.0.0.1 como IP del tracker.
